@@ -553,7 +553,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatYear(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -599,7 +599,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatQuarter(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -645,7 +645,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatMonth(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -697,7 +697,7 @@ export default defineVxeComponent({
                     yyyy = `${Number(yyyy) + 1}`
                   }
                   const currStr = `${yyyy}-${W}`
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -744,7 +744,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatDay(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -787,7 +787,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatHours(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -830,7 +830,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatMinutes(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
@@ -873,7 +873,7 @@ export default defineVxeComponent({
                 let currStep = scaleStep - 1
                 while (currStep) {
                   const currStr = XEUtils.toDateString(XEUtils.getWhatSeconds(dateObj.date, scaleStep - currStep), renderFormat)
-                  indexMaps[currStr] = i + currRatio
+                  indexMaps[currStr] = i + ((scaleStep - currStep) * currRatio)
                   currStep--
                 }
               }
