@@ -44,7 +44,7 @@ export default defineVxeComponent({
       const { showNowLine, viewStyle } = taskViewOpts
       const scaleUnit = computeScaleUnit.value
       const { scaleItem } = headerGroups[headerGroups.length - 1] || {}
-      const { field, dateObj } = column
+      const { field, dateObj, startDateObj, endDateObj } = column
       const { cellClassName, cellStyle } = viewStyle || {}
       const todayValue = showNowLine && scaleItem ? todayDateMaps[scaleItem.type] : null
 
@@ -93,6 +93,8 @@ export default defineVxeComponent({
         type: viewType,
         scaleType: scaleUnit,
         dateObj,
+        startDateObj,
+        endDateObj,
         row,
         column,
         $rowIndex,

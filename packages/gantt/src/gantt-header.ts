@@ -17,7 +17,7 @@ export default defineVxeComponent({
     const $xeGantt = inject('$xeGantt', {} as (VxeGanttConstructor & VxeGanttPrivateMethods))
     const $xeGanttView = inject('$xeGanttView', {} as VxeGanttViewConstructor & VxeGanttViewPrivateMethods)
 
-    const { computeTaskViewOpts } = $xeGantt.getComputeMaps()
+    const { computeTaskViewOpts, computeScaleStep, computeMinScale } = $xeGantt.getComputeMaps()
     const { reactData, internalData } = $xeGanttView
 
     const refElem = ref() as Ref<HTMLDivElement>
@@ -29,6 +29,8 @@ export default defineVxeComponent({
       const { headerGroups, viewCellWidth } = reactData
       const { todayDateMaps, visibleColumn } = internalData
       const taskViewOpts = computeTaskViewOpts.value
+      const minScale = computeMinScale.value
+      const scaleStep = computeScaleStep.value
       const { showNowLine } = taskViewOpts
       return h('div', {
         ref: refElem,
@@ -63,15 +65,28 @@ export default defineVxeComponent({
               return h('tr', {
                 key: $rowIndex
               }, columns.map((column, cIndex) => {
-                const { field, childCount, dateObj } = column
+                const { field, childCount, dateObj, startDateObj, endDateObj } = column
                 let label = `${column.title}`
-                if (scaleItem.type === 'day') {
-                  label = getI18n(`vxe.gantt.dayss.w${dateObj.e}`)
+                if ((isLast || (minScale && (minScale.type === 'date' || minScale.type === 'day') && (type === 'date' || type === 'day'))) && scaleStep > 1) {
+                  label = getI18n(`vxe.gantt.stepFormat.${type}`, {
+                    start: startDateObj,
+                    end: endDateObj,
+                    eStartLabel: getI18n(`vxe.gantt.dayss.w${startDateObj.e}`),
+                    eEndLabel: getI18n(`vxe.gantt.dayss.w${endDateObj.e}`)
+                  })
                 } else {
-                  if ($rowIndex) {
-                    label = getI18n(`vxe.gantt.tSimpleFormat.${type}`, dateObj)
+                  if (type === 'day') {
+                    if ($rowIndex) {
+                      label = getI18n(`vxe.gantt.tSimpleFormat.${type}`, {
+                        eLabel: getI18n(`vxe.gantt.dayss.w${dateObj.e}`)
+                      })
+                    } else {
+                      label = getI18n(`vxe.gantt.tFullFormat.${type}`, {
+                        eLabel: getI18n(`vxe.gantt.dayss.w${dateObj.e}`)
+                      })
+                    }
                   } else {
-                    if (isLast && scaleItem.type === 'week') {
+                    if ($rowIndex) {
                       label = getI18n(`vxe.gantt.tSimpleFormat.${type}`, dateObj)
                     } else {
                       label = getI18n(`vxe.gantt.tFullFormat.${type}`, dateObj)
@@ -79,7 +94,17 @@ export default defineVxeComponent({
                   }
                 }
                 let cellVNs: string | VxeComponentSlotType[] = label
-                const ctParams = { source: sourceType, type: viewType, column, scaleObj: scaleItem, title: label, dateObj: dateObj, $rowIndex }
+                const ctParams = {
+                  source: sourceType,
+                  type: viewType,
+                  column,
+                  scaleObj: scaleItem,
+                  title: label,
+                  dateObj,
+                  startDateObj,
+                  endDateObj,
+                  $rowIndex
+                }
                 if (titleSlot) {
                   cellVNs = $xeGantt.callSlot(titleSlot, ctParams)
                 } else if (titleMethod) {
