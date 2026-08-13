@@ -2,7 +2,7 @@ import { h, ref, reactive, nextTick, inject, onBeforeUnmount, provide, computed,
 import { defineVxeComponent } from '../../ui/src/comp'
 import { setScrollTop, setScrollLeft, removeClass, addClass, hasClass } from '../../ui/src/dom'
 import { VxeUI } from '@vxe-ui/core'
-import { getRefElem, getStandardGapTime, getTaskBarLeft, getTaskBarWidth, hasMilestoneTask, getTaskType, hasSubviewTask } from './util'
+import { getRefElem, getTaskBarLeft, getTaskBarWidth, hasMilestoneTask, getTaskType, hasSubviewTask } from './util'
 import XEUtils from 'xe-utils'
 import GanttViewHeaderComponent from './gantt-header'
 import GanttViewBodyComponent from './gantt-body'
@@ -191,16 +191,33 @@ export default defineVxeComponent({
           }
           break
         }
-        case 'hour':
-        case 'minute':
-        case 'second': {
-          const gapTime = getStandardGapTime(minScale.type) * scaleStep
-          let currTime = minViewDate.getTime() + (leftSize * gapTime)
-          const endTime = maxViewDate.getTime() + (rightSize * gapTime)
-          while (currTime <= endTime) {
-            const itemDate = new Date(currTime)
+        case 'hour': {
+          let currDate = XEUtils.getWhatHours(minViewDate, leftSize, 'first')
+          const endDate = XEUtils.getWhatHours(maxViewDate, rightSize, 'first')
+          while (currDate <= endDate) {
+            const itemDate = currDate
             dateList.push(itemDate)
-            currTime += gapTime
+            currDate = XEUtils.getWhatHours(currDate, scaleStep)
+          }
+          break
+        }
+        case 'minute': {
+          let currDate = XEUtils.getWhatMinutes(minViewDate, leftSize, 'first')
+          const endDate = XEUtils.getWhatMinutes(maxViewDate, rightSize, 'first')
+          while (currDate <= endDate) {
+            const itemDate = currDate
+            dateList.push(itemDate)
+            currDate = XEUtils.getWhatMinutes(currDate, scaleStep)
+          }
+          break
+        }
+        case 'second': {
+          let currDate = XEUtils.getWhatSeconds(minViewDate, leftSize, 'first')
+          const endDate = XEUtils.getWhatSeconds(maxViewDate, rightSize, 'first')
+          while (currDate <= endDate) {
+            const itemDate = currDate
+            dateList.push(itemDate)
+            currDate = XEUtils.getWhatSeconds(currDate, scaleStep)
           }
           break
         }
