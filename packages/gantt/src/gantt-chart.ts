@@ -58,20 +58,7 @@ export default defineVxeComponent({
       const taskBarSubviewOpts = computeTaskBarSubviewOpts.value
       const { showOverview, barStyle: subBarStyle } = taskBarSubviewOpts
       const scaleUnit = computeScaleUnit.value
-      const barParams = { $gantt: $xeGantt, row, scaleType: scaleUnit }
-      const { showProgress, showContent, contentMethod, barStyle, moveable, showTooltip } = taskBarOpts
-      const isBarRowStyle = XEUtils.isFunction(barStyle)
-      const barStyObj = (barStyle ? (isBarRowStyle ? barStyle(barParams) || undefined : barStyle) : {}) || {}
-      const { round } = barStyObj
-
-      const rowRest = fullAllDataRowIdData[rowid] || {}
-      const cellHeight = resizeHeightFlag ? getCellRestHeight(rowRest, cellOpts, rowOpts, defaultRowHeight) : 0
-
-      let title = getStringValue(XEUtils.get(row, titleField))
-      const progressValue = showProgress ? Math.min(100, Math.max(0, XEUtils.toNumber(XEUtils.get(row, progressField)))) : 0
-      const renderTaskType = getTaskType(XEUtils.get(row, typeField))
-
-      const ctParams = {
+      const barParams = {
         $gantt: $xeGantt,
         source: sourceType,
         type: viewType,
@@ -81,19 +68,34 @@ export default defineVxeComponent({
         rowIndex,
         _rowIndex
       }
+      const { showProgress, showContent, contentMethod, barStyle, moveable, showTooltip } = taskBarOpts
+      const isBarRowStyle = XEUtils.isFunction(barStyle)
+      const barStyObj = (barStyle ? (isBarRowStyle ? barStyle(barParams) || undefined : barStyle) : {}) || {}
+      const barRound = barStyObj.round
+      const barBgColor = barStyObj.bgColor
+      const barCompletedBgColor = barStyObj.completedBgColor
+      const barHtmlStyle = barStyObj.style
+      const rowRest = fullAllDataRowIdData[rowid] || {}
+      const cellHeight = resizeHeightFlag ? getCellRestHeight(rowRest, cellOpts, rowOpts, defaultRowHeight) : 0
+
+      let title = getStringValue(XEUtils.get(row, titleField))
+      const progressValue = showProgress ? Math.min(100, Math.max(0, XEUtils.toNumber(XEUtils.get(row, progressField)))) : 0
+      const renderTaskType = getTaskType(XEUtils.get(row, typeField))
+
+      const ctParams = { ...barParams }
 
       const vbStyle: VxeComponentStyleType = {}
       const vpStyle: VxeComponentStyleType = {
         width: `${progressValue || 0}%`
       }
-      if (isBarRowStyle) {
-        const { bgColor, completedBgColor } = barStyObj
-        if (bgColor) {
-          vbStyle.backgroundColor = XEUtils.isFunction(bgColor) ? bgColor(ctParams) : bgColor
-        }
-        if (completedBgColor) {
-          vpStyle.backgroundColor = completedBgColor
-        }
+      if (barBgColor) {
+        vbStyle.backgroundColor = barBgColor
+      }
+      if (barCompletedBgColor) {
+        vpStyle.backgroundColor = barCompletedBgColor
+      }
+      if (barHtmlStyle) {
+        XEUtils.assign(vbStyle, barHtmlStyle)
       }
 
       let cbVNs: VNode[] = []
@@ -147,7 +149,7 @@ export default defineVxeComponent({
                     rowid: rowid,
                     class: ['vxe-gantt-view--chart-subview-row', {
                       'is--progress': showProgress,
-                      'is--round': round,
+                      'is--round': barRound,
                       'is--move': moveable
                     }]
                   }, [
@@ -177,9 +179,25 @@ export default defineVxeComponent({
           } else {
             const cbcVNs: VNode[] = []
             XEUtils.eachTree(rowChildren, childRow => {
-              const childBarParams = { $gantt: $xeGantt, row: childRow, scaleType: scaleUnit }
-              const childBarStyObj = (barStyle ? (isBarRowStyle ? barStyle(childBarParams) : barStyle) : {}) || {}
-              const { round } = childBarStyObj
+              const childBarParams = {
+                $gantt: $xeGantt,
+                source: sourceType,
+                type: viewType,
+                scaleType: scaleUnit,
+                row: childRow,
+                $rowIndex: $xeTable.getRowIndex(childRow),
+                rowIndex: $xeTable.getVMRowIndex(childRow),
+                _rowIndex: $xeTable.getVTRowIndex(childRow)
+              }
+              const childBarStyObj = XEUtils.assign(
+                {},
+                (barStyle ? (XEUtils.isFunction(barStyle) ? barStyle(childBarParams) : barStyle) : {}) || {},
+                (subBarStyle ? (XEUtils.isFunction(subBarStyle) ? subBarStyle(childBarParams) : subBarStyle) : {}) || {}
+              )
+              const childRound = childBarStyObj.round
+              const childBgColor = childBarStyObj.bgColor
+              const childCompletedBgColor = childBarStyObj.completedBgColor
+              const childBarHtmlStyle = childBarStyObj.style
 
               const childRowid = $xeTable.getRowid(childRow)
               let childTitle = getStringValue(XEUtils.get(childRow, titleField))
@@ -195,22 +213,24 @@ export default defineVxeComponent({
               const childVpStyle: VxeComponentStyleType = {
                 width: `${childProgressValue || 0}%`
               }
-              if (isBarRowStyle) {
-                const { bgColor, completedBgColor } = childBarStyObj
-                if (bgColor) {
-                  childVbStyle.backgroundColor = bgColor
-                }
-                if (completedBgColor) {
-                  childVpStyle.backgroundColor = completedBgColor
-                }
+              if (childBgColor) {
+                childVbStyle.backgroundColor = childBgColor
+              }
+              if (childCompletedBgColor) {
+                childVpStyle.backgroundColor = childCompletedBgColor
               }
 
-              const childCtParams = XEUtils.assign({}, ctParams, {
-                row: childRow,
-                rowIndex: $xeTable.getRowIndex(childRow),
-                $rowIndex: $xeTable.getVMRowIndex(childRow),
-                _rowIndex: $xeTable.getVTRowIndex(childRow)
-              })
+              //  已废弃
+              if ((childBarStyObj as any).top) {
+                childVbStyle.top = (childBarStyObj as any).top
+              }
+              //  已废弃
+
+              if (childBarHtmlStyle) {
+                XEUtils.assign(childVbStyle, childBarHtmlStyle)
+              }
+
+              const childCtParams = { ...childBarParams }
 
               if (contentMethod) {
                 childTitle = getStringValue(contentMethod({ row: childRow, title: childTitle, scaleType: scaleUnit }))
@@ -222,7 +242,7 @@ export default defineVxeComponent({
                   rowid: childRowid,
                   class: ['vxe-gantt-view--chart-subview-row', `is--${childRenderTaskType}`, {
                     'is--progress': showProgress,
-                    'is--round': round,
+                    'is--round': childRound,
                     'is--move': moveable,
                     'row--pending': !!pendingRowFlag && !!pendingRowMaps[childRowid]
                   }]
@@ -230,7 +250,7 @@ export default defineVxeComponent({
                   h('div', {
                     rowid: childRowid,
                     class: [taskBarSlot ? 'vxe-gantt-view--chart-subview-custom-bar' : 'vxe-gantt-view--chart-subview-bar', `is--${childRenderTaskType}`],
-                    style: subBarStyle ? (XEUtils.isFunction(subBarStyle) ? subBarStyle(childCtParams) : subBarStyle) : undefined,
+                    style: childVbStyle,
                     onClick (evnt: MouseEvent) {
                       evnt.stopPropagation()
                       $xeGantt.handleTaskBarClickEvent(evnt, childCtParams)
@@ -343,7 +363,7 @@ export default defineVxeComponent({
         class: ['vxe-gantt-view--chart-row', `is--${renderTaskType}`, {
           'is--progress': showProgress,
           'row--pending': !!pendingRowFlag && !!pendingRowMaps[rowid],
-          'is--round': round,
+          'is--round': barRound,
           'is--move': moveable
         }],
         style: {

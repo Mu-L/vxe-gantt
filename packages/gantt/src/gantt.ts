@@ -429,7 +429,7 @@ export default defineVxeComponent({
         stys['--vxe-ui-gantt-view-task-now-line-background-color'] = nlbgColor
       }
       if (nlWidth) {
-        stys['--vxe-ui-gantt-view-task-now-line-width'] = nlWidth
+        stys['--vxe-ui-gantt-view-task-now-line-width'] = toCssUnit(nlWidth)
       }
       if (viewStyle) {
         const { cellWidth } = viewStyle
@@ -2722,8 +2722,8 @@ export default defineVxeComponent({
     })
 
     watch(computeTaskLinkStyle, () => {
-      if ($xeGantt.handleUpdateTaskLinkData) {
-        $xeGantt.handleUpdateTaskLinkData()
+      if ($xeGantt.handleUpTaskLinkData) {
+        $xeGantt.handleUpTaskLinkData()
       }
     })
 
@@ -2746,7 +2746,17 @@ export default defineVxeComponent({
     initPages()
 
     onMounted(() => {
-      if (!$xeGantt.handleUpdateTaskLinkData) {
+      const taskBarSubviewOpts = computeTaskBarSubviewOpts.value
+      const { barStyle } = taskBarSubviewOpts
+      if (barStyle) {
+        if ((barStyle as any).top) {
+          warnLog('vxe.error.delProp', ['task-bar-subview-config.barStyle.top', 'task-bar-subview-config.barStyle.style.top'])
+        }
+        if ((barStyle as any).backgroundColor) {
+          warnLog('vxe.error.delProp', ['task-bar-subview-config.barStyle.backgroundColor', 'task-bar-subview-config.barStyle.style.backgroundColor'])
+        }
+      }
+      if (!$xeGantt.handleUpTaskLinkData) {
         if (props.links) {
           warnLog('vxe.error.notProp', ['links'])
         }

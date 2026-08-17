@@ -30,6 +30,13 @@ export function getLastZIndex () {
   return DomZIndex.getCurrent()
 }
 
+export function getGlobalDefaultConfig (value: any, globalValue: any) {
+  if (XEUtils.eqNull(value)) {
+    return globalValue
+  }
+  return value
+}
+
 export function hasChildrenList (item: any) {
   return item && item.children && item.children.length > 0
 }

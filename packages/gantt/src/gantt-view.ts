@@ -1339,7 +1339,7 @@ export default defineVxeComponent({
 
       return Promise.all([
         updateTaskChartStyle(),
-        $xeGantt.handleUpdateTaskLinkStyle ? $xeGantt.handleUpdateTaskLinkStyle($xeGanttView) : null
+        $xeGantt.handleUpTaskLinkStyle ? $xeGantt.handleUpTaskLinkStyle($xeGanttView) : null
       ])
     }
 
