@@ -1,14 +1,13 @@
 <template>
   <div>
-    <vxe-date-picker v-model="selectValue" type="date" @change="loadList()"></vxe-date-picker>
     <vxe-gantt v-bind="ganttOptions"></vxe-gantt>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import { VxeGanttProps } from '../../../types'
-import XEUtils from 'xe-utils'
+import { VxeGanttTaskType } from '../../../packages'
 
 interface RowVO {
   id: number
@@ -16,58 +15,42 @@ interface RowVO {
   start: string
   end: string
   progress: number
-  owner: string
+  type?: string
 }
-
-const selectValue = ref('2025-01-01')
 
 const ganttOptions = reactive<VxeGanttProps<RowVO>>({
   border: true,
-  height: 500,
-  loading: false,
+  taskViewConfig: {
+    gridding: {
+      leftSpacing: 1,
+      rightSpacing: 4
+    }
+  },
   taskBarConfig: {
-    showProgress: true,
     showContent: true,
+    showProgress: true,
     barStyle: {
       round: true,
       bgColor: '#f56565',
       completedBgColor: '#65c16f'
     }
   },
-  taskViewConfig: {
-    scales: ['date', 'hour'],
-    tableStyle: {
-      width: 320
-    }
-  },
+  taskBarMilestoneConfig: {},
   columns: [
-    { field: 'title', title: '任务名称', width: 120 },
-    { field: 'owner', title: '负责人', width: 100 },
-    { field: 'start', title: '开始时间', width: 160 },
-    { field: 'end', title: '结束时间', width: 160 }
+    { field: 'title', title: '任务名称' },
+    { field: 'start', title: '开始时间', width: 100 },
+    { field: 'end', title: '结束时间', width: 100 }
   ],
-  data: []
+  data: [
+    { id: 10001, title: '项目启动会议', start: '2024-03-01', end: '', progress: 0, type: VxeGanttTaskType.Milestone },
+    { id: 10002, title: '项目启动与计划', start: '2024-03-03', end: '2024-03-08', progress: 80 },
+    { id: 10003, title: '需求评审完成', start: '2024-03-03', end: '', progress: 0, type: VxeGanttTaskType.Milestone },
+    { id: 10004, title: '技术及方案设计', start: '2024-03-05', end: '2024-03-11', progress: 80 },
+    { id: 10005, title: '功能开发', start: '2024-03-08', end: '2024-03-15', progress: 70 },
+    { id: 10007, title: '测试环境发布', start: '2024-03-11', end: '', progress: 0, type: VxeGanttTaskType.Milestone },
+    { id: 10008, title: '系统测试', start: '2024-03-14', end: '2024-03-19', progress: 80 },
+    { id: 10009, title: '测试完成', start: '2024-03-19', end: '', progress: 0, type: VxeGanttTaskType.Milestone },
+    { id: 10010, title: '正式发布上线', start: '2024-03-20', end: '', progress: 0, type: VxeGanttTaskType.Milestone }
+  ]
 })
-
-// 模拟后端接口
-const loadList = () => {
-  ganttOptions.loading = true
-  setTimeout(() => {
-    const mockList: RowVO[] = []
-    for (let i = 0; i < 10; i++) {
-      const selectDate = XEUtils.toStringDate(selectValue.value || Date.now())
-      selectDate.setHours(XEUtils.random(0, 10))
-      const startDate = XEUtils.toDateString(selectDate)
-      selectDate.setHours(XEUtils.random(11, 23))
-      const endDate = XEUtils.toDateString(selectDate)
-      mockList.push(
-        { id: 10000 + i, title: `任务${i + 1}`, start: startDate, end: endDate, owner: '张三', progress: XEUtils.random(20, 90) }
-      )
-    }
-    ganttOptions.loading = false
-    ganttOptions.data = mockList
-  }, 300)
-}
-
-loadList()
 </script>
