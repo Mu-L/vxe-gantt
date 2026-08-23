@@ -55,7 +55,7 @@ body:
   id: issue_vxe_ui_version
   attributes:
     label: "vxe-pc-ui 版本："
-    placeholder: "例如：4.16.28"
+    placeholder: "例如：4.17.12"
   validations:
     required: true
 - type: input
@@ -69,7 +69,7 @@ body:
   id: issue_vxe_gantt_version
   attributes:
     label: "vxe-gantt 版本："
-    placeholder: "例如：4.6.10"
+    placeholder: "例如：4.7.1"
   validations:
     required: true
 - type: checkboxes
